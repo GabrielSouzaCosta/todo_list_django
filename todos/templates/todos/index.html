@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="text-uppercase display-3 text-center text-white mt-3"><a href="https://www.djangoproject.com/"><img src="{% static 'django.png' %}" width="150px"/></a>To-Do List</h1>
+
+    <div style="background-color: #ffffffdd;" class="card d-flex flex-column flex-sm-row text-center display-6 mt-4">
+        <div class="col-12 col-md-4 pe-0">
+            <div class="d-flex flex-column">
+                <div class="btn btn-danger fs-3 mb-2">To-do</div>
+            <form method='POST' action="{% url 'todos:add' %}">
+                {% csrf_token %}
+                    <div class="input-group">
+                        <div class="d-flex w-100 align-items-center justify-content-center ps-2">
+                            <input type="text" name="item" id="item" class="form-control me-2" autofocus/>
+                            <button class="btn btn-dark me-3 rounded-circle" type="submit">+</button>
+                        </div>
+                    </div>
+            </form>
+            
+            <div class="d-flex flex-column mt-1 ps-2">
+                {% for todo in todos %}
+                <div class="d-flex align-items-center">
+                    {% if not todo.doing and not todo.done %}
+                        <form action="{% url 'todos:done' %}" method="POST">
+                            {% csrf_token %}
+                            <input onchange="this.form.submit()" type="checkbox" id="done" value="done" style="height: 15px; width: 15px;" class="form-check-input me-2 mt-3 " />
+                            <input type="hidden" name="id" value="{{ todo.id }}" />
+                        </form>
+                        <form action="{% url 'todos:doing' %}" method='POST'>
+                            {% csrf_token %}
+                            <div class="d-flex align-items-center">
+                                <div class="fw-bold text-start text-break ps-2 mb-1" ><u>{{ todo }}</u></div>
+                                <button type="submit" class="btn btn-warning ms-3 me-2 my-2 h-50 float-end">doing</button>
+                            </div>
+                            <input type="hidden" value="{{ todo.id }}" name="doing_id" />
+                        </form>
+                        <form action="{% url 'todos:delete' %}" method='POST'>
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger fw-bold my-2 float-end rounded-circle">&#10005;</button>
+                            <input type="hidden" name="delete_id" value="{{ todo.id }}" />
+                        </form>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        </div>
+        
+        <div class="col-12 col-md-4 pe-0">
+            <div class="d-flex flex-column">
+                <div class="btn btn-primary fs-3 mb-2 ">Doing</div>
+                {% for t in todos %}
+                    {% if t.doing and not t.done %}
+                    <div class="d-flex w-100 align-items-center justify-content-center mb-2">
+                            <form action="{% url 'todos:done' %}" method="POST">
+                                {% csrf_token %}
+                                <input style="width: 15px; height: 15px;" onchange="this.form.submit()" class="form-check-input mx-2 mt-2 mt-md-3" type="checkbox"/>
+                                <input type="hidden" name="id" value="{{ t.id }}"/>
+                            </form>
+                            <mark class="text-break w-100 px-3 text-start rounded-pill text-white" style="background-color: #104E2E;">
+                                {{ t }}
+                            </mark>
+                            <form action="{% url 'todos:delete' %}" method='POST'>
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger fw-bold float-end rounded-circle ms-1">&#10005;</button>
+                                <input type="hidden" name="delete_id" value="{{ t.id }}" />
+                            </form>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="d-flex flex-column px-0">
+                <div class="btn btn-success fs-3 mb-2">Done</div>
+                <ul class="list-unstyled">
+                    {% for t in todos %}
+                        {% if t.done and not t.doing %}
+                            <li>
+                                <div class="fw-bolder text-start text-break ps-3 mb-1" ><del style="color: rgb(206, 82, 195);">{{ t }}</del></div>
+                            </li>
+                        {% endif %}                    
+                    {% endfor %}
+                </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+{% endblock content %}
